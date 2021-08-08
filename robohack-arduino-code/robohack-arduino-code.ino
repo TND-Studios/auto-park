@@ -32,7 +32,7 @@ const float minDistance = 10; //cm
 
 const float defaultDesiredDistance = 50; // cm 
 const float warningDistance = 10; // cm
-const float defaultDesiredDistanceRange = 100; // cm
+const float defaultDesiredDistanceRange = 75; // cm
 
 
 float desiredDistance = 50; // cm
@@ -41,6 +41,8 @@ float desiredDistanceRange = 100; //cm
 float duration, distance; 
 String currentlyChanging = "Desired";
 String currentLight = "none";
+
+int deadzone = 64;
 
 void setup() {
   Serial.begin(9600); //9600 is how fast we talk
@@ -85,14 +87,16 @@ void loop() {
 
   // read from and process joystick input 
   int joystickInput = analogRead(joystickPin);
-
-  if (currentlyChanging == "Desired") {
-    desiredDistance -= ((float)(joystickInput) - 512.0) / 500.0;
-    desiredDistance = clamp(desiredDistance, minDistance, maxDistance);
-  } else if (currentlyChanging == "Warning") {
-    desiredDistanceRange -= ((float)(joystickInput) - 512.0) / 500.0;
-    desiredDistanceRange = clamp(desiredDistanceRange, minDistance, maxDistance - desiredDistance);
+  if (joystickInput > 512 + deadzone || joystickInput < 512 - deadzone) {
+    if (currentlyChanging == "Desired") {
+      desiredDistance -= ((float)(joystickInput) - 512.0) / 500.0;
+      desiredDistance = clamp(desiredDistance, minDistance, maxDistance);
+    } else if (currentlyChanging == "Warning") {
+      desiredDistanceRange -= ((float)(joystickInput) - 512.0) / 500.0;
+      desiredDistanceRange = clamp(desiredDistanceRange, minDistance, maxDistance - desiredDistance);
+    }
   }
+  
 
   if (distance < desiredDistance - warningDistance && joystickInput != 512) {
     mySpeaker.attach(speakerPin)
