@@ -6,6 +6,8 @@ A1 Joy
 D12 RED
 D11 Yellow
 D10  Green
+D9 Speaker
+D2 IR Remote
 */
 
 #include <Wire.h>
@@ -97,9 +99,9 @@ void loop() {
     }
   }
   
-
+  // change light state based on ultrasonic reading
   if (distance < desiredDistance - warningDistance && joystickInput != 512) {
-    mySpeaker.attach(speakerPin)
+    mySpeaker.attach(speakerPin);
     mySpeaker.write(180);
     setLight("r");
     delay(100);
@@ -148,14 +150,14 @@ void loop() {
   delay(50);
 }
 
-
+// clamp input to between minimum and maximum 
 float clamp(float input, int minimum, int maximum) {
     if (input > maximum) input = (float)maximum;
     if (input < minimum) input = (float)minimum; 
     return input; 
 }
 
-
+// set light color to desired mode: 'r' 'y' 'g' or 'none'
 void setLight(String color) {
   if (currentLight != color) {
     if (currentLight == "none") {
